@@ -25,29 +25,32 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	}
 	users[userID] = newUser
 	userID++
+
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]int{"id": userID - 1})
 }
 
 func makeFriends(w http.ResponseWriter, r *http.Request) {
 	var friendRequest struct {
-		SourceID int `json:"source_id"`
-		TargetID int `json:"target_id"`
+		SourceID int json:"source_id"
+		TargetID int json:"target_id"
 	}
 	err := json.NewDecoder(r.Body).Decode(&friendRequest)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	users[friendRequest.SourceID].Friends = append(users[friendRequest.SourceID].Friends, friendRequest.TargetID)
 	users[friendRequest.TargetID].Friends = append(users[friendRequest.TargetID].Friends, friendRequest.SourceID)
+
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "%s and %s are now friends", users[friendRequest.SourceID].Name, users[friendRequest.TargetID].Name)
 }
 
 func deleteUser(w http.ResponseWriter, r *http.Request) {
 	var target struct {
-		TargetID int `json:"target_id"`
+		TargetID int json:"target_id"
 	}
 	err := json.NewDecoder(r.Body).Decode(&target)
 	if err != nil {
@@ -76,7 +79,7 @@ func getFriends(w http.ResponseWriter, r *http.Request) {
 func updateUserAge(w http.ResponseWriter, r *http.Request) {
 	userID := 1
 	var newAge struct {
-		NewAge string `json:"new_age"`
+		NewAge string json:"new_age"
 	}
 	err := json.NewDecoder(r.Body).Decode(&newAge)
 	if err != nil {
@@ -84,6 +87,7 @@ func updateUserAge(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	users[userID].Age = newAge.NewAge
+    
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "User age successfully updated")
 }
